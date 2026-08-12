@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>S Bhuvana Chandra — Embedded Systems Portfolio</title>
+  <meta name="description" content="S Bhuvana Chandra — Junior Embedded Engineer at Tara UAV Drones. UAV electronics, sensor fusion, real-time data acquisition, RF/SDR monitoring, and 4G MAVLink telemetry." />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080d;
+      --panel: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8f1ff;
+      --muted: #9fb2c8;
+      --accent: #5aa5ff;
+      --accent-2: #7cf2c4;
+      --radius: 18px;
+      --shadow: 0 16px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Space Grotesk", "Manrope", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* Layered background: stars + gradient grid */
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+    }
+    body::before {
+      background:
+        radial-gradient(1200px at 20% 20%, rgba(90, 165, 255, 0.14), transparent 45%),
+        radial-gradient(1000px at 80% 10%, rgba(124, 242, 196, 0.12), transparent 40%),
+        radial-gradient(900px at 40% 80%, rgba(255, 255, 255, 0.06), transparent 40%),
+        #06080d;
+    }
+    body::after {
+      background:
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 120px 120px;
+      opacity: 0.25;
+      mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
+      mix-blend-mode: screen;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(14px);
+      background: rgba(5, 6, 10, 0.65);
+      border-bottom: 1px solid var(--border);
+      z-index: 99;
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .brand .pulse {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px var(--accent);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 4px var(--accent); transform: scale(0.9); }
+      50% { box-shadow: 0 0 22px var(--accent); transform: scale(1.1); }
+      100% { box-shadow: 0 0 4px var(--accent); transform: scale(0.9); }
+    }
+    .nav-links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all 180ms ease;
+      font-size: 14px;
+    }
+    .nav-links a:hover {
+      border-color: var(--border);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+    .menu-toggle {
+      display: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+    .cta {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: #020203;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(98,243,255,0.35), 0 6px 24px rgba(255,95,212,0.28);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .cta:hover { transform: translateY(-2px); }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 56px 22px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      align-items: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .glow-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    h1 {
+      font-size: clamp(32px, 6vw, 56px);
+      margin: 12px 0 10px;
+      letter-spacing: -0.01em;
+    }
+    h1 span { color: var(--accent); }
+    p.lead {
+      color: var(--muted);
+      max-width: 650px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .ghost {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 160ms ease;
+    }
+    .ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(200px at var(--mx, 50%) var(--my, 50%), rgba(98,243,255,0.12), transparent 55%);
+      opacity: 0;
+      transition: opacity 200ms ease;
+      z-index: 0;
+    }
+    .panel:hover::after { opacity: 1; }
+    .panel-content { position: relative; z-index: 1; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    a.chip {
+      display: inline-block;
+      color: var(--text);
+      text-decoration: none;
+    }
+    a.chip:hover { color: var(--accent); border-color: var(--accent); }
+    .bullet-list {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .bullet-list li { margin-bottom: 6px; }
+    .bullet-list strong { color: var(--text); font-weight: 600; }
+    .timeline-item .bullet-list { margin-top: 10px; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .section-title::before {
+      content: "";
+      width: 42px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      display: inline-block;
+    }
+
+    .project {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .project h3 { margin: 6px 0; }
+    .project p { color: var(--muted); line-height: 1.5; }
+    .project h3 .year {
+      float: right;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding-top: 4px;
+    }
+
+    .timeline {
+      border-left: 1px solid var(--border);
+      padding-left: 32px;
+      display: grid;
+      gap: 16px;
+    }
+    .timeline-item {
+      position: relative;
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -17px; top: 6px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 10px var(--accent-2);
+    }
+    .timeline-item h4 { margin: 2px 0; }
+    .timeline-item span { color: var(--muted); font-size: 13px; }
+
+    .footer {
+      margin-top: 30px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* 3D card hover */
+    .tilt {
+      perspective: 900px;
+    }
+    .tilt .panel {
+      transform-style: preserve-3d;
+      transition: transform 180ms ease, border-color 160ms ease;
+    }
+    .tilt:hover .panel { border-color: rgba(98,243,255,0.4); }
+
+    /* Floating highlights */
+    .orb {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(98,243,255,0.18), transparent 60%);
+      filter: blur(20px);
+      border-radius: 50%;
+      z-index: -1;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .orb.pink { background: radial-gradient(circle, rgba(124, 242, 196, 0.18), transparent 60%); }
+    @keyframes drift {
+      from { transform: translate3d(-40px, -10px, 0); }
+      to   { transform: translate3d(60px, 30px, 0); }
+    }
+
+    a.text-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a.text-link:hover { text-decoration: underline; }
+
+    @media (max-width: 720px) {
+      nav { gap: 10px; align-items: center; }
+      .menu-toggle { display: inline-flex; }
+      .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        background: rgba(5, 6, 10, 0.8);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 8px;
+      }
+      nav.open .nav-links { display: flex; }
+      .nav-links a {
+        width: 100%;
+        padding: 10px 12px;
+      }
+      .footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="brand">
+        <span class="pulse"></span>
+        <span>S B Chandra · Embedded</span>
+      </div>
+      <button class="menu-toggle" aria-label="Toggle navigation">≡</button>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#experience">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a class="cta" href="s_b_chandra.pdf" download>Download Résumé</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <span class="badge"><span class="glow-dot"></span> Junior Embedded Engineer · Tara UAV Drones</span>
+        <h1>Hi, I'm <span>S Bhuvana Chandra</span> — I build reliable embedded systems for UAVs.</h1>
+        <p class="lead">
+          Focused on real-time data acquisition, sensor fusion, RF/SDR, and long-range UAV links. I design, prototype, and deploy firmware that keeps autonomous platforms safe, measurable, and controllable.
+        </p>
+        <div class="hero-actions">
+          <a class="cta" href="https://www.linkedin.com/in/sangem-bhuvana-chandra-81a45125a/" target="_blank" rel="noreferrer">Let's Collaborate</a>
+          <a class="ghost" href="#projects">View Projects</a>
+        </div>
+        <div class="chip-row" style="margin-top:18px;">
+          <div class="chip">Embedded C / C++ / Python</div>
+          <div class="chip">Sensor Fusion</div>
+          <div class="chip">SDR & RF Monitoring</div>
+          <div class="chip">UAV Electronics</div>
+          <div class="chip">Hyderabad, IN</div>
+          <a class="chip" href="https://www.linkedin.com/in/sangem-bhuvana-chandra-81a45125a/" target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </div>
+      <div class="panel tilt" style="min-height: 320px;">
+        <div class="orb" style="top:-60px; right:-40px;"></div>
+        <div class="orb pink" style="bottom:-70px; left:-40px;"></div>
+        <div class="panel-content">
+          <div class="section-title">Signal Readout</div>
+          <div class="project">
+            <h3>Latest Work — RF Monitor <span class="year">2026</span></h3>
+            <p>Real-time HackRF One spectrum dashboard with waterfall view, signal-strength analysis, and automatic Wi‑Fi / Bluetooth / BLE device detection.</p>
+          </div>
+          <div class="project" style="margin-top:16px;">
+            <h3>Also Shipping — 4G UAV MAVLink Link <span class="year">2026</span></h3>
+            <p>Quectel EC200U LTE + Raspberry Pi carrying MAVLink over cellular to Mission Planner — long-range telemetry beyond radio line of sight.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="section-title">About</div>
+      <div class="panel tilt">
+        <div class="panel-content">
+          <p class="lead">
+            Embedded engineer specializing in UAV electronics, real-time sensing, and secure control links. Comfortable across firmware, PCB bring-up, cellular/RF links, and field testing. Passionate about translating mission needs into robust hardware/software stacks.
+          </p>
+          <div class="chip-row">
+            <div class="chip">B.Tech ECE · MLR Institute of Technology</div>
+            <div class="chip">2+ yrs building UAV subsystems</div>
+            <div class="chip">Open to R&D + product roles</div>
+          </div>
+          <div class="section-title" style="margin-top:24px;">Areas of Interest</div>
+          <div class="chip-row" style="margin-top:0;">
+            <div class="chip">Embedded Systems</div>
+            <div class="chip">UAV Electronics</div>
+            <div class="chip">Sensor Fusion</div>
+            <div class="chip">Real-Time Data Acquisition</div>
+            <div class="chip">IoT Firmware Development</div>
+            <div class="chip">RF Communication Systems</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="section-title">Experience</div>
+      <div class="panel tilt">
+        <div class="panel-content timeline">
+          <div class="timeline-item">
+            <h4> Junior Embedded Engineer — Tara UAV Drones</h4>
+            <span>2025 – Present · Hyderabad</span>
+            <ul class="bullet-list">
+              <li>Built the <strong>TenDOF Ground Command &amp; Logging Module</strong> for UAV telemetry, sensor fusion, and Wi-Fi-based control.</li>
+              <li>Designed the <strong>Thrust Bench System</strong> for propulsion performance measurement.</li>
+              <li>Developed the <strong>Multi-Cell Li-Po Battery Health Monitoring System</strong> with RFID authentication and real-time logging on ESP32.</li>
+              <li>Implemented <strong>object avoidance</strong> on a quadrotor using four directional LiDAR sensors plus a 360° LiDAR module.</li>
+              <li>Designed an <strong>SBUS master–slave switching module</strong> transferring control between primary and secondary transmitters.</li>
+              <li>Developed a <strong>4G MAVLink communication system</strong> (Quectel EC200U, Raspberry Pi/Luckfox, Mission Planner) for long-range telemetry.</li>
+              <li>Built an <strong>RF monitoring system</strong> on HackRF Pro for spectrum analysis and wireless device detection.</li>
+            </ul>
+            <div class="chip-row">
+              <a class="chip" href="https://drive.google.com/drive/folders/1Iyoxis3WLRP9PPQxul5N1OY3LekbG9YG?usp=drive_link" target="_blank" rel="noreferrer">TenDOF docs</a>
+              <a class="chip" href="https://drive.google.com/drive/folders/1yFHRfgtUS02eqjAdW3dFcGoxfQkqWYk4?usp=drive_link" target="_blank" rel="noreferrer">Thrust Bench</a>
+              <a class="chip" href="https://drive.google.com/drive/folders/1atz14M6Sl0p-Uh1Ubol7CHoduuiOkuU5?usp=drive_link" target="_blank" rel="noreferrer">Li-Po Monitor</a>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <h4> Robotics Trainer — Leap Robots LLP</h4>
+            <span>May 2024 – Oct 2024 · Hyderabad</span>
+            <ul class="bullet-list">
+              <li>Designed and implemented <strong>R&D solutions</strong> for robotics projects.</li>
+              <li>Trained students in robotics on <strong>Arduino, ESP, and Raspberry Pi</strong> platforms.</li>
+              <li>Explored new applications of embedded systems in hands-on R&D work.</li>
+            </ul>
+            <div class="chip-row">
+              <a class="chip" href="https://drive.google.com/file/d/1jB0In3uHKjjAoAhx4M094f6OPYHXXzE8/view?usp=drive_link" target="_blank" rel="noreferrer">Experience letter</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-title">Projects</div>
+      <div class="grid">
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>RF Monitor <span class="year">2026</span></h3>
+              <ul class="bullet-list">
+                <li>Real-time SDR dashboard on HackRF One with live waterfall visualization.</li>
+                <li>Signal-strength analysis across the swept spectrum.</li>
+                <li>Automatic Wi-Fi, Bluetooth, and BLE device detection.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">HackRF One</div>
+                <div class="chip">SDR</div>
+                <div class="chip">Spectrum Analysis</div>
+                <div class="chip">Python</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>4G-Based UAV MAVLink Communication <span class="year">2026</span></h3>
+              <ul class="bullet-list">
+                <li>Long-range telemetry over LTE using a Quectel EC200U module.</li>
+                <li>Raspberry Pi bridge between flight controller and cellular network.</li>
+                <li>MAVProxy + Tailscale with TCP/UDP forwarding into Mission Planner.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">MAVLink</div>
+                <div class="chip">Quectel EC200U</div>
+                <div class="chip">Raspberry Pi</div>
+                <div class="chip">Mission Planner</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>LiDAR Object Avoidance (Quadrotor) <span class="year">2025</span></h3>
+              <ul class="bullet-list">
+                <li>Four-sensor multi-directional LiDAR array for close-range detection.</li>
+                <li>360° LiDAR module for full-perimeter obstacle mapping.</li>
+                <li>Real-time avoidance responses integrated into the flight stack.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">LiDAR</div>
+                <div class="chip">Quadrotor</div>
+                <div class="chip">Real-Time Control</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Li-Po Battery Health Monitoring System <span class="year">2026</span></h3>
+              <ul class="bullet-list">
+                <li>RFID-gated access to multi‑cell packs with tamper logging.</li>
+                <li>Real-time voltage, current, temp streams over Wi‑Fi (TCP/IP).</li>
+                <li>ESP32 firmware for on-board logging + web readouts.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">ESP32</div>
+                <div class="chip">RFID</div>
+                <div class="chip">TCP/IP</div>
+                <a class="chip" href="https://drive.google.com/drive/folders/1atz14M6Sl0p-Uh1Ubol7CHoduuiOkuU5?usp=drive_link" target="_blank" rel="noreferrer">Photos / Docs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>TenDOF Ground Command & Logging <span class="year">2025</span></h3>
+              <ul class="bullet-list">
+                <li>IMU + baro + magnetometer fusion for fixed‑wing attitude.</li>
+                <li>Web UI for live telemetry, mode switching, and commands.</li>
+                <li>Edge logging on ESP32 for mission playback and tuning.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">Sensor Fusion</div>
+                <div class="chip">ESP32</div>
+                <div class="chip">HTTP / TCP</div>
+                <a class="chip" href="https://drive.google.com/drive/folders/1Iyoxis3WLRP9PPQxul5N1OY3LekbG9YG?usp=drive_link" target="_blank" rel="noreferrer">Photos / Docs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Thrust Bench <span class="year">2025</span></h3>
+              <ul class="bullet-list">
+                <li>Load-cell + hall + thermal sensing for thrust, RPM, temp.</li>
+                <li>Dual ESP32 split for acquisition vs. control/IO isolation.</li>
+                <li>PC GUI for live plots, logging, and pass/fail envelopes.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">ESP32</div>
+                <div class="chip">DAQ</div>
+                <div class="chip">GUI</div>
+                <a class="chip" href="https://drive.google.com/drive/folders/1yFHRfgtUS02eqjAdW3dFcGoxfQkqWYk4?usp=drive_link" target="_blank" rel="noreferrer">Photos / Docs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Navigation via LiFi + LoRa <span class="year">2023</span></h3>
+              <ul class="bullet-list">
+                <li>Li‑Fi downlink for infrastructure→vehicle positioning.</li>
+                <li>LoRa uplink for vehicle→infrastructure telemetry.</li>
+                <li>Prototyped protocol handoff for low‑power smart nav.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">Li-Fi</div>
+                <div class="chip">LoRa</div>
+                <div class="chip">IoT</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Custom UAV Transmitter</h3>
+              <ul class="bullet-list">
+                <li>ESP32-based TX with joystick + switch inputs.</li>
+                <li>Outputs SBUS and HID for flexible control paths.</li>
+                <li>Designed custom PCB and validated comms stack.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">ESP32</div>
+                <div class="chip">SBUS</div>
+                <div class="chip">HID</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Master–Slave SBUS Switching Module <span class="year">2025</span></h3>
+              <ul class="bullet-list">
+                <li>Redundant control: seamless handover between two RC receivers.</li>
+                <li>Signal buffering + logic control to keep SBUS clean during switch.</li>
+                <li>Fail-safe behavior engineered for flight-critical links.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">SBUS</div>
+                <div class="chip">Redundancy</div>
+                <div class="chip">PCB Design</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Microstrip Patch Antenna</h3>
+              <ul class="bullet-list">
+                <li>Designed for 5G bands using Ansys for EM simulation.</li>
+                <li>Optimized for higher gain and efficiency in target band.</li>
+                <li>Explored fabrication constraints and feed techniques.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">RF</div>
+                <div class="chip">5G</div>
+                <div class="chip">Ansys</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Hexa Robotic Arm</h3>
+              <ul class="bullet-list">
+                <li>Six DOF robotic arm with IoT control interface.</li>
+                <li>Integrated servos with inverse-kinematics control.</li>
+                <li>Prototyped remote operation via mobile app.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">Robotics</div>
+                <div class="chip">IoT Control</div>
+                <div class="chip">6-DOF</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="panel">
+            <div class="panel-content project">
+              <h3>Hand Radio using LoRa <span class="year">2022</span></h3>
+              <ul class="bullet-list">
+                <li>One-way long-range voice/data link, extendable to two-way.</li>
+                <li>LoRa radio chain built and range-tested end to end.</li>
+                <li>Prototype hardware for low-infrastructure comms.</li>
+              </ul>
+              <div class="chip-row">
+                <div class="chip">LoRa</div>
+                <div class="chip">RF Comms</div>
+                <div class="chip">Prototype</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-title">Skills</div>
+      <div class="grid">
+        <div class="panel tilt">
+          <div class="panel-content">
+            <h3>Languages</h3>
+            <div class="chip-row">
+              <div class="chip">C / Embedded C</div>
+              <div class="chip">C++</div>
+              <div class="chip">Python</div>
+              <div class="chip">Arduino</div>
+              <div class="chip">Java</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel tilt">
+          <div class="panel-content">
+            <h3>Software & Tools</h3>
+            <div class="chip-row">
+              <div class="chip">Arduino IDE</div>
+              <div class="chip">PCB Design (KiCAD)</div>
+              <div class="chip">QGroundControl</div>
+              <div class="chip">Mission Planner</div>
+              <div class="chip">MAVProxy</div>
+              <div class="chip">Tailscale</div>
+              <div class="chip">Ubuntu / Linux</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel tilt">
+          <div class="panel-content">
+            <h3>Microcontrollers & Hardware</h3>
+            <div class="chip-row">
+              <div class="chip">ESP32 / ESP32-S3 / ESP8266</div>
+              <div class="chip">STM32</div>
+              <div class="chip">ATmega</div>
+              <div class="chip">Raspberry Pi / Luckfox</div>
+              <div class="chip">HackRF One (SDR)</div>
+              <div class="chip">Quectel EC200U (LTE)</div>
+              <div class="chip">LiDAR</div>
+              <div class="chip">LoRa & RFID</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel tilt">
+          <div class="panel-content">
+            <h3>Protocols</h3>
+            <div class="chip-row">
+              <div class="chip">I2C · SPI · UART/USART</div>
+              <div class="chip">SBUS</div>
+              <div class="chip">CAN</div>
+              <div class="chip">TCP/IP · UDP</div>
+              <div class="chip">MAVLink</div>
+              <div class="chip">LoRa</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel tilt">
+          <div class="panel-content">
+            <h3>Engineering Practice</h3>
+            <div class="chip-row">
+              <div class="chip">Sensor Fusion</div>
+              <div class="chip">Real-Time Data Acquisition</div>
+              <div class="chip">PCB Bring-Up & Debug</div>
+              <div class="chip">Field Testing</div>
+              <div class="chip">Problem Solving</div>
+              <div class="chip">Analytical Thinking</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="education">
+      <div class="section-title">Education</div>
+      <div class="panel tilt">
+        <div class="panel-content timeline">
+          <div class="timeline-item">
+            <h4>B.Tech, Electronics & Communication Engineering — 7.2/10</h4>
+            <span>MLR Institute of Technology · Hyderabad, Telangana · Nov 2020 – May 2024</span>
+          </div>
+          <div class="timeline-item">
+            <h4>Senior Secondary Education (XII) — 8.23/10</h4>
+            <span>Narayana Junior College · Hyderabad, Telangana · Aug 2018 – May 2020</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="section-title">Contact</div>
+      <div class="panel tilt">
+        <div class="panel-content">
+          <p class="lead">Open to embedded roles and UAV R&D — ground control and telemetry systems, real-time data acquisition, RF/SDR monitoring, and cellular (4G) links for beyond-line-of-sight operation.</p>
+          <div class="chip-row">
+            <div class="chip">Email: <a class="text-link" href="mailto:s.b.chandra2002@gmail.com">s.b.chandra2002@gmail.com</a></div>
+            <div class="chip">Phone: <a class="text-link" href="tel:+919347751173">+91 9347751173</a></div>
+            <div class="chip">Location: Hyderabad, Telangana</div>
+            <div class="chip">LinkedIn: <a class="text-link" href="https://www.linkedin.com/in/sangem-bhuvana-chandra-81a45125a/" target="_blank" rel="noreferrer">Profile</a></div>
+            <div class="chip">Résumé: <a class="text-link" href="s_b_chandra.pdf" download>Download PDF</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span>S Bhuvana Chandra • UAV & Embedded Systems • 2026</span>
+      <span>Last update: Aug 12, 2026</span>
+    </div>
+  </main>
+
+  <script>
+    // Lightweight 3D tilt + glow tracking
+    document.querySelectorAll('.tilt').forEach(container => {
+      const card = container.classList.contains('panel')
+        ? container
+        : container.querySelector('.panel');
+      if (!card) return;
+      container.addEventListener('pointermove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const rx = ((y / rect.height) - 0.5) * -6;
+        const ry = ((x / rect.width) - 0.5) * 8;
+        card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateZ(8px)`;
+        card.style.setProperty('--mx', `${(x / rect.width) * 100}%`);
+        card.style.setProperty('--my', `${(y / rect.height) * 100}%`);
+      });
+      container.addEventListener('pointerleave', () => {
+        card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0)';
+      });
+    });
+
+    // Mobile nav toggle
+    const nav = document.querySelector('nav');
+    const toggle = document.querySelector('.menu-toggle');
+    if (toggle && nav) {
+      toggle.addEventListener('click', () => {
+        nav.classList.toggle('open');
+      });
+    }
+  </script>
+</body>
+</html>
